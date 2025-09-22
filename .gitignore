@@ -1,0 +1,85 @@
+# Environment variables (contains API keys and secrets)
+.env
+*.env
+.env.local
+.env.production
+.env.staging
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# API credentials and sensitive data
+config/credentials.json
+secrets.json
+*.key
+*.pem
+*.crt
+
+# Application specific
+auction_radar.sqlite
+auction_radar.log
+northeast_targets.csv
+.git.backup
+auction_radar.log

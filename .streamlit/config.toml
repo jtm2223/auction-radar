@@ -1,0 +1,22 @@
+[global]
+# Streamlit configuration for cloud deployment
+dataFrameSerialization = "arrow"
+
+[server]
+# Server configuration
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+maxUploadSize = 200
+
+[client]
+# Client configuration
+showErrorDetails = false
+toolbarMode = "viewer"
+
+[theme]
+# Theme configuration
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
