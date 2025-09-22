@@ -1,0 +1,10 @@
+source,source_lot_id,lot_url,sale_date_utc,sale_local_time,location_city,location_state,vin,year,make,model,title_status,condition_notes
+nyc_finance,nyc_1_0,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,,2016,Toyota,Tundra Sr5 Vin,clean,Impounded vehicle
+nyc_finance,nyc_1_1,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,clean,City fleet surplus
+nyc_finance,nyc_1_4,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,,2017,Toyota,Tacoma Trd Vin,clean,City fleet surplus
+nyc_finance,nyc_2_1,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,salvage,Unclaimed property
+nyc_finance,nyc_2_2,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,salvage,City fleet surplus
+nyc_finance,nyc_2_3,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,salvage,Impounded vehicle
+nyc_finance,nyc_2_4,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,,2017,Toyota,Tacoma Trd Vin,salvage,Unclaimed property
+nyc_finance,nyc_3_4,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-08T15:00:00+00:00,"September 8, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,clean,Unclaimed property
+ct_state_surplus,ct_surplus_sample_1,https://www.propertyroom.com/vehicles,2025-09-12T22:00:00+00:00,"September 12, 2025 6:00 PM",Hartford,CT,,2019,Toyota,4Runner Trd Pro Vin,clean,Connecticut state surplus vehicle - former government fleet

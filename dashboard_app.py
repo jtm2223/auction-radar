@@ -4,13 +4,94 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import logging
+import time
+import os
 
 # Configure streamlit page
 st.set_page_config(
     page_title="Auction Radar Dashboard",
     page_icon="🚗",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Custom CSS for better styling
+st.markdown("""
+<style>
+.main > div {
+    padding-top: 2rem;
+}
+
+.stMetric {
+    background-color: #f0f2f6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #ff6b6b;
+}
+
+.target-match {
+    background-color: #f8f9ff;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    border: 1px solid #e0e7ff;
+    margin: 1rem 0;
+}
+
+.vehicle-title {
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-item {
+    margin: 0.25rem 0;
+    color: #4b5563;
+}
+
+.score-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.sidebar .sidebar-content {
+    background-color: #fafafa;
+}
+
+h1 {
+    color: #1f2937;
+    border-bottom: 3px solid #ff6b6b;
+    padding-bottom: 0.5rem;
+}
+
+.stAlert {
+    border-radius: 0.5rem;
+}
+
+.dataframe {
+    font-size: 0.9rem;
+}
+
+.stButton > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem;
+    font-weight: 500;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +100,7 @@ logger = logging.getLogger(__name__)
 # Import auction radar modules
 try:
     from auction_radar.config import config
-    from auction_radar.db import AuctionDB
+    from auction_radar.db_adapter import AuctionDB
     from auction_radar.ranker import lot_ranker
     from auction_radar.keywords import keyword_matcher
 except ImportError as e:
@@ -37,9 +118,11 @@ def load_auction_data(days_ahead, make_filter, state_filter, title_filter):
             state=state_filter if state_filter != 'All' else None,
             title_status=title_filter if title_filter != 'all' else None
         )
+        logger.info(f"Loaded {len(lots)} lots from database")
         return lots
     except Exception as e:
         logger.error(f"Error loading data: {e}")
+        st.error(f"Database error: {e}")
         return []
 
 @st.cache_data(ttl=300)
@@ -49,19 +132,60 @@ def get_target_matches(days_ahead):
         db = AuctionDB(config.AUCTION_DB)
         target_lots = db.get_target_matches(days_ahead=days_ahead)
         ranked_lots = lot_ranker.rank_lots(target_lots)
+        logger.info(f"Found {len(ranked_lots)} target matches")
         return ranked_lots
     except Exception as e:
         logger.error(f"Error getting target matches: {e}")
+        st.error(f"Error loading target matches: {e}")
         return []
 
 def main():
     """Main dashboard function."""
+
+    # Auto-refresh controls at the top
+    col1, col2, col3 = st.columns([2, 1, 1])
+
+    with col1:
+        st.markdown("### 🚗 Regional Tow Auction Radar")
+
+    with col2:
+        auto_refresh = st.checkbox("🔄 Auto-refresh", value=False, help="Refresh data every 30 seconds")
+
+    with col3:
+        if st.button("🔄 Refresh Now", help="Manually refresh data"):
+            st.cache_data.clear()
+            st.rerun()
+
+    # Auto-refresh mechanism
+    if auto_refresh:
+        placeholder = st.empty()
+        placeholder.text("⏱️ Auto-refreshing in 30 seconds...")
+        time.sleep(30)
+        st.cache_data.clear()
+        st.rerun()
+
+    # Last updated info
+    st.markdown(f"**Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # Header with improved styling
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 2rem;'>
+        <h2 style='color: #1f2937; font-size: 2rem; margin-bottom: 0.5rem;'>
+            Northeast State Surplus Auctions
+        </h2>
+        <p style='color: #6b7280; font-size: 1.1rem; margin: 0;'>
+            Track vehicle auctions across NY, CT, MA, RI, NJ
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.title("🚗 Regional Tow Auction Radar")
-    st.markdown("---")
-    
-    # Sidebar filters
-    st.sidebar.header("Filters")
+    # Sidebar filters with improved styling
+    st.sidebar.markdown("""
+    <div style='text-align: center; margin-bottom: 1.5rem;'>
+        <h2 style='color: #374151; margin-bottom: 0.5rem;'>🎯 Filters</h2>
+        <p style='color: #6b7280; font-size: 0.9rem; margin: 0;'>Customize your search</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Date range filter
     days_ahead = st.sidebar.slider(
@@ -73,10 +197,20 @@ def main():
     )
     
     # Load initial data to get filter options
-    initial_lots = load_auction_data(days_ahead, 'All', 'All', 'all')
+    with st.spinner("Loading auction data..."):
+        initial_lots = load_auction_data(days_ahead, 'All', 'All', 'all')
     
     if not initial_lots:
-        st.warning("No auction data available. Run `python -m auction_radar --crawl` to populate the database.")
+        st.error("""
+        ### 📭 No auction data available
+        
+        To populate the database, run:
+        ```bash
+        python -m auction_radar --crawl
+        ```
+        
+        This will fetch the latest auction listings from all configured sources.
+        """)
         return
     
     # Get unique values for filters
@@ -93,23 +227,31 @@ def main():
     targets_only = st.sidebar.checkbox("Show target vehicles only", value=False)
     
     # Load filtered data
-    if targets_only:
-        lots = get_target_matches(days_ahead)
-        # Apply additional filters to target matches
-        if make_filter != 'All':
-            lots = [lot for lot in lots if lot.get('make', '').lower() == make_filter.lower()]
-        if state_filter != 'All':
-            lots = [lot for lot in lots if lot.get('location_state', '') == state_filter]
-        if title_filter != 'all':
-            lots = [lot for lot in lots if lot.get('title_status', '') == title_filter]
-    else:
-        lots = load_auction_data(days_ahead, make_filter, state_filter, title_filter)
+    with st.spinner("Applying filters and loading data..."):
+        if targets_only:
+            lots = get_target_matches(days_ahead)
+            # Apply additional filters to target matches
+            if make_filter != 'All':
+                lots = [lot for lot in lots if lot.get('make', '').lower() == make_filter.lower()]
+            if state_filter != 'All':
+                lots = [lot for lot in lots if lot.get('location_state', '') == state_filter]
+            if title_filter != 'all':
+                lots = [lot for lot in lots if lot.get('title_status', '') == title_filter]
+        else:
+            lots = load_auction_data(days_ahead, make_filter, state_filter, title_filter)
     
-    # Stats overview
+    # Stats overview with improved styling
+    st.markdown("### 📊 Overview")
+    
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Total Lots", len(lots))
+        st.markdown("""
+        <div class='stMetric'>
+            <div style='font-size: 2rem; font-weight: bold; color: #1f2937;'>{}</div>
+            <div style='color: #6b7280; font-size: 0.9rem;'>Total Lots</div>
+        </div>
+        """.format(len(lots)), unsafe_allow_html=True)
     
     with col2:
         if targets_only or not lots:
@@ -117,88 +259,156 @@ def main():
         else:
             target_lots = get_target_matches(days_ahead)
             target_count = len(target_lots)
-        st.metric("Target Matches", target_count)
+        st.markdown("""
+        <div class='stMetric'>
+            <div style='font-size: 2rem; font-weight: bold; color: #ef4444;'>{}</div>
+            <div style='color: #6b7280; font-size: 0.9rem;'>Target Matches</div>
+        </div>
+        """.format(target_count), unsafe_allow_html=True)
     
     with col3:
         states_count = len(set([lot.get('location_state', 'Unknown') for lot in lots]))
-        st.metric("States", states_count)
+        st.markdown("""
+        <div class='stMetric'>
+            <div style='font-size: 2rem; font-weight: bold; color: #10b981;'>{}</div>
+            <div style='color: #6b7280; font-size: 0.9rem;'>States</div>
+        </div>
+        """.format(states_count), unsafe_allow_html=True)
     
     with col4:
         sources_count = len(set([lot.get('source', 'Unknown') for lot in lots]))
-        st.metric("Sources", sources_count)
+        st.markdown("""
+        <div class='stMetric'>
+            <div style='font-size: 2rem; font-weight: bold; color: #3b82f6;'>{}</div>
+            <div style='color: #6b7280; font-size: 0.9rem;'>Sources</div>
+        </div>
+        """.format(sources_count), unsafe_allow_html=True)
     
     # Top matches section
-    if targets_only or st.sidebar.checkbox("Show top matches section"):
-        st.header("🎯 Top Target Matches")
+    if targets_only or st.sidebar.checkbox("Show top matches section", value=True):
+        st.markdown("""
+        <div style='margin: 2rem 0;'>
+            <h2 style='color: #1f2937; font-size: 1.8rem; margin-bottom: 1rem;'>🎯 Top Target Matches</h2>
+            <p style='color: #6b7280; margin-bottom: 1.5rem;'>High-value vehicles matching your search criteria</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        target_lots = get_target_matches(days_ahead)
+        with st.spinner("Loading target matches..."):
+            target_lots = get_target_matches(days_ahead)
         
         if target_lots:
             # Show top 5 matches in columns
             top_matches = target_lots[:5]
             
             for i, lot in enumerate(top_matches):
-                with st.container():
-                    col1, col2 = st.columns([3, 1])
-                    
-                    with col1:
-                        # Vehicle info
-                        year = lot.get('year', 'Unknown')
-                        make = lot.get('make', 'Unknown')
-                        model = lot.get('model', 'Unknown')
-                        
-                        st.subheader(f"{year} {make} {model}")
-                        
-                        # Location and date
-                        city = lot.get('location_city', 'Unknown')
-                        state = lot.get('location_state', 'Unknown')
-                        sale_time = lot.get('sale_local_time', 'TBD')
-                        
-                        st.write(f"📍 **Location:** {city}, {state}")
-                        st.write(f"📅 **Sale Date:** {sale_time}")
-                        
-                        # Title and condition
-                        title_status = lot.get('title_status', 'unknown').title()
-                        condition = lot.get('condition_notes', '')
-                        
-                        st.write(f"📋 **Title:** {title_status}")
-                        if condition:
-                            st.write(f"⚠️ **Condition:** {condition}")
-                        
-                        # VIN if available
-                        vin = lot.get('vin', '')
-                        if vin:
-                            st.write(f"🔢 **VIN:** {vin}")
-                    
-                    with col2:
-                        # Score
-                        score = lot.get('score', 0)
-                        st.metric("Score", f"{score:.1f}")
-                        
-                        # Link
-                        lot_url = lot.get('lot_url', '')
-                        if lot_url and lot_url != '':
-                            st.markdown(f"[View Lot]({lot_url})", unsafe_allow_html=True)
-                        
-                    st.markdown("---")
+                # Vehicle info
+                year = lot.get('year', 'Unknown')
+                make = lot.get('make', 'Unknown')
+                model = lot.get('model', 'Unknown')
+                
+                # Location and date
+                city = lot.get('location_city', 'Unknown')
+                state = lot.get('location_state', 'Unknown')
+                sale_time = lot.get('sale_local_time', 'TBD')
+                
+                # Title and condition
+                title_status = lot.get('title_status', 'unknown').title()
+                condition = lot.get('condition_notes', '')
+                
+                # VIN if available
+                vin = lot.get('vin', '')
+                vin_display = f"...{vin[-8:]}" if vin else "Not available"
+                
+                # Show VIN-decoded specs if available
+                specs = []
+                if lot.get('body_class'):
+                    specs.append(f"Body: {lot.get('body_class')}")
+                if lot.get('fuel_type'):
+                    specs.append(f"Fuel: {lot.get('fuel_type')}")
+                if lot.get('vin_engine_cylinders'):
+                    specs.append(f"Engine: {lot.get('vin_engine_cylinders')} cyl")
+                if lot.get('vin_transmission'):
+                    specs.append(f"Trans: {lot.get('vin_transmission')}")
+                
+                specs_text = ', '.join(specs) if specs else "No specs available"
+                
+                # Score and link
+                score = lot.get('score', 0)
+                lot_url = lot.get('lot_url', '')
+                view_link = f"<a href='{lot_url}' target='_blank' style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 500;'>View Lot →</a>" if lot_url else "<span style='color: #9ca3af;'>No link available</span>"
+                
+                st.markdown(f"""
+                <div class='target-match'>
+                    <div style='display: flex; justify-content: between; align-items: flex-start;'>
+                        <div style='flex: 1;'>
+                            <h3 class='vehicle-title'>{year} {make} {model}</h3>
+                            <div class='info-item'>📍 <strong>Location:</strong> {city}, {state}</div>
+                            <div class='info-item'>📅 <strong>Sale Date:</strong> {sale_time}</div>
+                            <div class='info-item'>📋 <strong>Title:</strong> {title_status}</div>
+                            <div class='info-item'>🔢 <strong>VIN:</strong> {vin_display}</div>
+                            <div class='info-item'>🔧 <strong>Specs:</strong> {specs_text}</div>
+                            {f"<div class='info-item'>⚠️ <strong>Condition:</strong> {condition[:100]}{'...' if len(condition) > 100 else ''}</div>" if condition else ""}
+                        </div>
+                        <div style='text-align: center; margin-left: 1rem;'>
+                            <div class='score-badge'>
+                                <div style='font-size: 1.5rem;'>{score:.1f}</div>
+                                <div style='font-size: 0.8rem;'>SCORE</div>
+                            </div>
+                            <div style='margin-top: 1rem;'>{view_link}</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            st.info("No target matches found in the selected time period.")
+            st.markdown("""
+            <div style='text-align: center; padding: 2rem; background-color: #f9fafb; border-radius: 0.8rem; margin: 1rem 0;'>
+                <h3 style='color: #6b7280; margin-bottom: 0.5rem;'>🔍 No target matches found</h3>
+                <p style='color: #9ca3af; margin: 0;'>Try adjusting your filters or check back later for new listings.</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Main data table
-    st.header("📋 All Auction Lots")
+    st.markdown("""
+    <div style='margin: 2rem 0 1rem 0;'>
+        <h2 style='color: #1f2937; font-size: 1.8rem; margin-bottom: 0.5rem;'>📋 All Auction Lots</h2>
+        <p style='color: #6b7280; margin-bottom: 1.5rem;'>Complete listing of available vehicles</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     if lots:
         # Convert to DataFrame for better display
         df_data = []
         for lot in lots:
+            # Build enhanced vehicle description
+            vehicle_parts = []
+            if lot.get('year'):
+                vehicle_parts.append(str(lot['year']))
+            if lot.get('make'):
+                vehicle_parts.append(lot['make'])
+            if lot.get('model'):
+                vehicle_parts.append(lot['model'])
+            
+            vehicle_desc = ' '.join(vehicle_parts) if vehicle_parts else 'Unknown Vehicle'
+            
+            # Add VIN-decoded specs for display
+            specs = []
+            if lot.get('vin_body_class'):
+                specs.append(lot['vin_body_class'])
+            elif lot.get('body_class'):
+                specs.append(lot['body_class'])
+            if lot.get('vin_fuel_type'):
+                specs.append(f"{lot['vin_fuel_type']} fuel")
+                
+            specs_text = f" ({', '.join(specs)})" if specs else ""
+            
             row = {
                 'Sale Date': lot.get('sale_local_time', 'TBD'),
-                'Vehicle': f"{lot.get('year', '')} {lot.get('make', '')} {lot.get('model', '')}".strip(),
+                'Vehicle': vehicle_desc + specs_text,
                 'Location': f"{lot.get('location_city', '')}, {lot.get('location_state', '')}",
                 'Title': lot.get('title_status', 'unknown').title(),
                 'Source': lot.get('source', 'Unknown'),
-                'VIN': lot.get('vin', ''),
-                'Condition': lot.get('condition_notes', '')[:50] + ('...' if len(lot.get('condition_notes', '')) > 50 else ''),
+                'VIN': lot.get('vin', '')[-8:] if lot.get('vin') else '',  # Show last 8 digits
+                'Condition': (lot.get('condition_notes') or '')[:50] + ('...' if len(lot.get('condition_notes') or '') > 50 else ''),
                 'URL': lot.get('lot_url', ''),
                 'Score': lot.get('score', 0) if 'score' in lot else 'N/A'
             }
@@ -231,11 +441,46 @@ def main():
         )
     
     else:
-        st.info("No lots found matching your criteria.")
+        st.markdown("""
+        <div style='text-align: center; padding: 2rem; background-color: #fef3c7; border-radius: 0.8rem; margin: 1rem 0;'>
+            <h3 style='color: #92400e; margin-bottom: 0.5rem;'>📭 No lots found</h3>
+            <p style='color: #b45309; margin: 0;'>No vehicles match your current filter criteria. Try adjusting your filters above.</p>
+        </div>
+        """, unsafe_allow_html=True)
     
+    # Deployment info and footer
+    with st.expander("🌐 Share Dashboard"):
+        st.markdown("""
+        **Deploy this dashboard for your team:**
+        1. **Streamlit Cloud (Recommended)**:
+           ```bash
+           # Push to GitHub, then connect to streamlit.io
+           git add . && git commit -m "Dashboard ready"
+           git push origin main
+           ```
+           Then visit [share.streamlit.io](https://share.streamlit.io) to deploy
+
+        2. **Local Network Access**:
+           ```bash
+           streamlit run dashboard_app.py --server.address 0.0.0.0 --server.port 8501
+           ```
+           Access at `http://[your-ip]:8501`
+
+        3. **Cloud Deployment**:
+           - Deploy to Heroku, Railway, or DigitalOcean
+           - Set up automated crawling with cron jobs
+        """)
+
     # Footer
-    st.markdown("---")
-    st.markdown("*Data refreshes every 5 minutes. Run `python -m auction_radar --crawl` to update.*")
+    st.markdown("""
+    <div style='margin-top: 3rem; padding: 2rem; background-color: #f9fafb; border-radius: 0.8rem; text-align: center;'>
+        <p style='color: #6b7280; margin: 0; font-size: 0.9rem;'>
+            🔄 Auto-refresh enabled •
+            📊 Live data from 12+ auction sources •
+            🚗 Northeast Auction Radar v2.0
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()

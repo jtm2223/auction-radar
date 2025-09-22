@@ -1,0 +1,22 @@
+source,source_lot_id,lot_url,sale_date_utc,sale_local_time,location_city,location_state,vin,year,make,model,title_status,condition_notes
+nyc_finance,nyc_0_0,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-27T15:00:00+00:00,"August 27, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,unknown,Unclaimed property
+nyc_finance,nyc_0_1,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-27T15:00:00+00:00,"August 27, 2025 11:00 AM",New York,NY,,2017,Toyota,Tacoma Trd Vin,unknown,City fleet surplus
+nyc_finance,nyc_0_2,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-27T15:00:00+00:00,"August 27, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,salvage,Impounded vehicle
+nyc_finance,nyc_0_3,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-27T15:00:00+00:00,"August 27, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,unknown,Unclaimed property
+nyc_finance,nyc_0_4,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-27T15:00:00+00:00,"August 27, 2025 11:00 AM",New York,NY,,2017,Toyota,Tacoma Trd Vin,unknown,Unclaimed property
+nyc_finance,nyc_1_0,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-28T15:00:00+00:00,"August 28, 2025 11:00 AM",New York,NY,,2017,Toyota,Tacoma Trd Vin,clean,Impounded vehicle
+nyc_finance,nyc_1_2,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-28T15:00:00+00:00,"August 28, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,unknown,Unclaimed property
+nyc_finance,nyc_1_4,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-28T15:00:00+00:00,"August 28, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,clean,Impounded vehicle
+nyc_finance,nyc_2_0,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-29T15:00:00+00:00,"August 29, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,clean,City fleet surplus
+nyc_finance,nyc_2_2,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-29T15:00:00+00:00,"August 29, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,salvage,Impounded vehicle
+nyc_finance,nyc_2_3,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-08-29T15:00:00+00:00,"August 29, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,clean,Impounded vehicle
+test_source,sample_1,https://example.com/lot1,2025-09-01T22:08:33.429033,"January 1, 2025 10:00 AM",Miami,FL,1ABCD23EFGH456789,2018,Toyota,4Runner,clean,"Good condition, minor scratches"
+county_sheriff,sheriff_4,,2025-09-02T14:30:00+00:00,"September 02, 2025 10:30 AM",Orlando,FL,JTEBU5JR9L5456789,2020,Toyota,4Runner Sr5 Premium - Vin,clean,Sheriff impound auction
+county_sheriff,sheriff_3,,2025-09-04T14:30:00+00:00,"September 04, 2025 10:30 AM",Miami,FL,1N6AD0EV6JN345678,2018,Nissan,Frontier Sv King Cab - Vin,unknown,Sheriff impound auction
+statewide_auction,sa_1,https://www.statewideauction.com,2025-09-04T18:00:00+00:00,"September 04, 2025 2:00 PM",Orlando,FL,,2019,Toyota,Land Cruiser Heritage Edition,salvage,"Flood damage, needs restoration"
+test_source,sample_2,https://example.com/lot2,2025-09-04T22:08:33.429145,"January 4, 2025 2:00 PM",Tampa,FL,2WXYZ98KLMN123456,2019,Toyota,Land Cruiser,salvage,"Flood damage, needs restoration"
+nyc_finance,nyc_3_0,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,,2016,Toyota,Tundra Sr5 Vin,unknown,Unclaimed property
+nyc_finance,nyc_3_2,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,1ABCD23EFGH456789,2018,Toyota,4Runner Sr5 Vin,salvage,Unclaimed property
+nyc_finance,nyc_3_3,https://www.nyc.gov/site/finance/vehicles/auctions.page,2025-09-05T15:00:00+00:00,"September 5, 2025 11:00 AM",New York,NY,2WXYZ98KLMN123456,2020,Nissan,Frontier S Vin,salvage,Unclaimed property
+statewide_auction,sa_2,https://www.statewideauction.com,2025-09-06T18:00:00+00:00,"September 06, 2025 2:00 PM",Orlando,FL,,2020,Toyota,4Runner Trd Pro,rebuilt,Minor front end damage
+test_source,sample_3,https://example.com/lot3,2025-09-06T22:08:33.429148,"January 6, 2025 11:00 AM",Orlando,FL,3PQRS45TUVW789012,2020,Nissan,Frontier,clean,"City fleet vehicle, high mileage"
