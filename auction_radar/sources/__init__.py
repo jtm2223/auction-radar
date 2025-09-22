@@ -1,20 +1,47 @@
-"""Auction source scrapers."""
+"""Regional auction sources focused on NY, CT, MA, NJ, RI state surplus auctions."""
 
-from .south_florida_aa import SouthFloridaAAScraper
 from .nyc_finance import NYCFinanceScraper
-from .statewide_auction import StatewideAuctionScraper
-from .placeholder_scrapers import CountySheriffScraper, CityImpoundScraper
+from .ct_state_surplus import CTStateSurplusScraper
+from .ct_statewide_auction import CTStatewideAuctionScraper
+from .ma_state_surplus import MAStateSurplusScraper
+from .nj_state_surplus import NJStateSurplusScraper
+from .nj_south_jersey_auction import NJSouthJerseyAuctionScraper
+from .nj_adesa_auction import NJADESAAuctionScraper
+from .ny_state_surplus import NYStateSurplusScraper
+from .ri_state_surplus import RIStateSurplusScraper
+from .public_surplus import PublicSurplusScraper
+from .gsa_auctions import GSAAuctionsScraper
+from .ny_abetter_bid import NYABetterBidScraper
 
-# Registry of all available scrapers
+# Regional scraper registry - only working state surplus sources
 SCRAPERS = {
-    'south_florida_aa': SouthFloridaAAScraper,
     'nyc_finance': NYCFinanceScraper,
-    'statewide_auction': StatewideAuctionScraper,
-    'county_sheriff': CountySheriffScraper,
-    'city_impound': CityImpoundScraper,
+    'ct_state_surplus': CTStateSurplusScraper,
+    'ct_statewide_auction': CTStatewideAuctionScraper,
+    'ma_state_surplus': MAStateSurplusScraper,
+    'nj_state_surplus': NJStateSurplusScraper,
+    'nj_south_jersey_auction': NJSouthJerseyAuctionScraper,
+    'nj_adesa_auction': NJADESAAuctionScraper,
+    'ny_state_surplus': NYStateSurplusScraper,
+    'ri_state_surplus': RIStateSurplusScraper,
+    'public_surplus': PublicSurplusScraper,
+    'gsa_auctions': GSAAuctionsScraper,
+    'abetter_bid_northeast': NYABetterBidScraper,
 }
 
 def get_all_scrapers():
-    """Get instances of all available scrapers."""
-    return [scraper_class() for scraper_class in SCRAPERS.values()]
-
+    """Get all regional state surplus scrapers."""
+    return [
+        NYCFinanceScraper(),
+        CTStateSurplusScraper(),
+        CTStatewideAuctionScraper(),
+        MAStateSurplusScraper(),
+        NJStateSurplusScraper(),
+        NJSouthJerseyAuctionScraper(),
+        NJADESAAuctionScraper(),
+        NYStateSurplusScraper(),
+        RIStateSurplusScraper(),
+        PublicSurplusScraper(),
+        GSAAuctionsScraper(),
+        NYABetterBidScraper(),
+    ]
