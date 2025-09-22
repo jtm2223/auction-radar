@@ -15,57 +15,48 @@ class KeywordMatcher:
     """Handles keyword matching for target vehicles."""
     
     def __init__(self):
-        # Define target patterns with scores (higher = more desirable)
+        # Define target patterns - ONLY vehicles you specifically want
         self.patterns = {
-            # Land Cruiser - highest priority
+            # Lexus/Toyota Land Cruiser - HIGHEST PRIORITY
             'land_cruiser': {
-                'regex': re.compile(r'\b(?:land\s*cruiser|landcruiser|lc\s*\d+|lc)\b', re.IGNORECASE),
+                'regex': re.compile(r'\b(?:(?:lexus|toyota).*(?:land\s*cruiser|landcruiser)|land\s*cruiser|landcruiser|lx\s*\d+|lx570|lx470|lx450|lc\s*\d+|lc200|lc100|lc80)\b', re.IGNORECASE),
                 'score': 1.0,
-                'keywords': ['land cruiser', 'landcruiser', 'lc']
+                'keywords': ['land cruiser', 'landcruiser', 'lexus lx', 'lx570', 'lx470', 'lc200', 'lc100', 'lc80']
             },
             
-            # 4Runner - high priority
+            # 4Runner - SECOND HIGHEST PRIORITY
             'fourrunner': {
-                'regex': re.compile(r'\b(?:4\s*runner|4runner|four\s*runner)\b', re.IGNORECASE),
+                'regex': re.compile(r'\b(?:4[\s\-]*runner|four[\s\-]*runner)\b', re.IGNORECASE),
+                'score': 0.95,
+                'keywords': ['4runner', 'four runner', '4 runner', '4-runner']
+            },
+            
+            # Toyota Trucks (ANY drivetrain)
+            'toyota_trucks': {
+                'regex': re.compile(r'\b(?:toyota.*(?:tacoma|tundra|t100|pickup)|(?:tacoma|tundra|t100))\b', re.IGNORECASE),
                 'score': 0.9,
-                'keywords': ['4runner', 'four runner']
+                'keywords': ['tacoma', 'tundra', 'toyota pickup', 't100']
+            },
+
+            # Nissan Trucks (ANY drivetrain)
+            'nissan_trucks': {
+                'regex': re.compile(r'\b(?:nissan.*(?:frontier|titan|navara|hardbody|pickup)|(?:frontier|titan|navara|hardbody))\b', re.IGNORECASE),
+                'score': 0.85,
+                'keywords': ['frontier', 'titan', 'nissan pickup', 'navara', 'hardbody']
             },
             
-            # Toyota trucks
-            'tacoma': {
-                'regex': re.compile(r'\btacoma\b', re.IGNORECASE),
+            # Mini Campers with Motor (Class B/Small RVs) - NOT expanded
+            'mini_campers_motor': {
+                'regex': re.compile(r'\b(?:(?:class\s*b|mini\s*motor\s*home|small\s*rv|conversion\s*van|roadtrek|pleasure\s*way|leisure\s*travel\s*van|great\s*west\s*van)(?!\s*(?:expand|slide|out)))\b', re.IGNORECASE),
                 'score': 0.8,
-                'keywords': ['tacoma']
-            },
-            'tundra': {
-                'regex': re.compile(r'\btundra\b', re.IGNORECASE),
-                'score': 0.8,
-                'keywords': ['tundra']
+                'keywords': ['class b', 'mini motorhome', 'conversion van', 'roadtrek', 'pleasure way']
             },
             
-            # Nissan trucks
-            'frontier': {
-                'regex': re.compile(r'\bfrontier\b', re.IGNORECASE),
-                'score': 0.7,
-                'keywords': ['frontier']
-            },
-            'titan': {
-                'regex': re.compile(r'\btitan\b', re.IGNORECASE),
-                'score': 0.7,
-                'keywords': ['titan']
-            },
-            
-            # Campers and RVs
-            'campers_rvs': {
-                'regex': re.compile(
-                    r'\b(?:camper|class\s*[bc]|sprinter|promaster|transit|'
-                    r'teardrop|travel\s*trailer|tow\s*hitch|rv|motorhome|'
-                    r'fifth\s*wheel|pop\s*up)\b', 
-                    re.IGNORECASE
-                ),
-                'score': 0.6,
-                'keywords': ['camper', 'class b', 'class c', 'sprinter', 'promaster', 
-                           'transit', 'teardrop', 'travel trailer', 'rv', 'motorhome']
+            # Towable Mini Campers (Small Travel Trailers) - NOT expanded
+            'mini_campers_tow': {
+                'regex': re.compile(r'\b(?:(?:teardrop|small\s*travel\s*trailer|mini\s*trailer|compact\s*trailer|pop\s*up|casita|scamp|t@b|tab|little\s*guy|rpod|r\s*pod)(?!\s*(?:expand|slide|out)))\b', re.IGNORECASE),
+                'score': 0.75,
+                'keywords': ['teardrop', 'small travel trailer', 'pop up', 'casita', 'scamp', 'little guy', 'rpod']
             }
         }
     

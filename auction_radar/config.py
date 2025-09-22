@@ -1,5 +1,3 @@
-"""Configuration management for auction radar."""
-
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -11,7 +9,8 @@ class Config:
     """Application configuration."""
     
     # Database
-    AUCTION_DB = os.getenv("AUCTION_DB", "auction_radar.sqlite")
+    DATABASE_URL = os.getenv("DATABASE_URL")  # PostgreSQL URL for production
+    AUCTION_DB = os.getenv("AUCTION_DB", "auction_radar.sqlite")  # SQLite fallback for local
     
     # Timezone
     TZ_DEFAULT = os.getenv("TZ_DEFAULT", "America/New_York")
@@ -32,5 +31,10 @@ class Config:
     
     # Project root
     PROJECT_ROOT = Path(__file__).parent.parent
+    
+    # Google Custom Search API
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+    GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID", "")
+    GOOGLE_DAILY_QUOTA = int(os.getenv("GOOGLE_DAILY_QUOTA", "100"))
 
 config = Config()
