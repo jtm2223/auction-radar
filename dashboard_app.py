@@ -201,16 +201,64 @@ def main():
         initial_lots = load_auction_data(days_ahead, 'All', 'All', 'all')
     
     if not initial_lots:
-        st.error("""
+        st.warning("""
         ### 📭 No auction data available
-        
-        To populate the database, run:
-        ```bash
-        python -m auction_radar --crawl
-        ```
-        
-        This will fetch the latest auction listings from all configured sources.
+
+        The database is empty. Click the button below to crawl auction sources and populate the database with target vehicles.
         """)
+
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            if st.button("🔍 Crawl Auction Sources", type="primary", help="This will fetch target vehicles from all auction sources"):
+                with st.spinner("Crawling auction sources for target vehicles... This may take 2-3 minutes."):
+                    try:
+                        # Import and run the crawler
+                        from auction_radar.sources import get_all_scrapers
+                        from auction_radar.target_filter import target_filter
+
+                        scrapers = get_all_scrapers()
+                        total_targets = 0
+
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+
+                        for i, scraper in enumerate(scrapers):
+                            status_text.text(f"Crawling {scraper.source_name}...")
+                            progress_bar.progress((i) / len(scrapers))
+
+                            try:
+                                raw_lots = scraper.crawl()
+                                source_targets = 0
+
+                                for raw_lot in raw_lots:
+                                    if target_filter.is_target_vehicle(raw_lot):
+                                        db = AuctionDB(config.AUCTION_DB)
+                                        if db.upsert_lot(raw_lot):
+                                            source_targets += 1
+
+                                total_targets += source_targets
+                                logger.info(f"Found {source_targets} target vehicles from {scraper.source_name}")
+
+                            except Exception as e:
+                                logger.error(f"Error crawling {scraper.source_name}: {e}")
+                                continue
+
+                        progress_bar.progress(1.0)
+                        status_text.text("Crawling complete!")
+
+                        if total_targets > 0:
+                            st.success(f"✅ Successfully found {total_targets} target vehicles! Refreshing dashboard...")
+                            time.sleep(2)
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.info("No target vehicles found in current auctions. Try again later or check different sources.")
+
+                    except Exception as e:
+                        st.error(f"Error during crawling: {e}")
+                        logger.error(f"Crawler error: {e}")
+
+        st.info("💡 The crawler only saves target vehicles (Toyota 4Runner, Land Cruiser, Tacoma 4x4, etc.) to keep the database focused.")
         return
     
     # Get unique values for filters

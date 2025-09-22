@@ -124,15 +124,12 @@ def crawl_sources(db: AuctionDB, since_days: int):
             target_lots = 0
             
             for raw_lot in raw_lots:
-                # Check if it's a target vehicle before storing
+                # Only store target vehicles - saves space and focuses on what matters
                 from .target_filter import target_filter
                 if target_filter.is_target_vehicle(raw_lot):
                     if db.upsert_lot(raw_lot):
                         processed_lots += 1
                         target_lots += 1
-                # Still store non-target lots but don't count them as priority
-                elif db.upsert_lot(raw_lot):
-                    processed_lots += 1
             
             logger.info(f"Processed {processed_lots} lots ({target_lots} targets) from {scraper.source_name}")
             total_lots += processed_lots
